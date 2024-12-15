@@ -1,0 +1,22 @@
+//
+// tracer.c
+// lucas@pamorana.net
+//
+// Test eBPF tracing.
+//
+
+BEGIN
+{
+    @indx[0] = 0;
+}
+
+u:/opt/lib/libcrypto.so:ec_wNAF_mul
+{
+    @start[tid] = nsecs;
+}
+
+u:/opt/lib/libcrypto.so:ec_wNAF_mul%return /@start[tid]/
+{
+    @intervals[@indx[0]++] = nsecs - @start[tid];
+    delete(@start[tid]);
+}
